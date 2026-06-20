@@ -124,8 +124,11 @@ app.get('/organizations', route(() => 'ref:orgs', TTL.ref, () => bwf.organizatio
 // === Demarrage ===
 
 async function start() {
-  console.log('Demarrage du navigateur partage (Chrome)...');
-  await bwf.init({ headless: false }); // headless:false = plus fiable face a Cloudflare
+  // headless:false par defaut (plus fiable face a Cloudflare en local).
+  // Sur un serveur sans ecran : BWF_HEADLESS=true (teste OK, pas besoin de xvfb).
+  const headless = process.env.BWF_HEADLESS === 'true';
+  console.log(`Demarrage du navigateur partage (Chrome, headless: ${headless})...`);
+  await bwf.init({ headless });
   console.log('Navigateur pret.');
   app.listen(PORT, () => {
     console.log(`\nTON API BWF en ecoute sur http://localhost:${PORT}`);
