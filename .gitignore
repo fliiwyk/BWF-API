@@ -1,0 +1,10 @@
+node_modules/
+.claude/
+*.log
+.env
+.env.local
+# fichiers temporaires de test
+live.json
+today.json
+live2.json
+*.tmp
