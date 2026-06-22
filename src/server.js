@@ -91,6 +91,16 @@ app.get(
   route((r) => `search:${JSON.stringify(r.query)}`, TTL.search, (r) => bwf.tournamentsSearch(r.query))
 );
 
+// GET /year-tournaments?year=2026  -> tous les tournois de l'annee (avec pays)
+app.get(
+  '/year-tournaments',
+  route(
+    (r) => `yeartmts:${r.query.year || ''}`,
+    TTL.ranking,
+    (r) => bwf.groupedYearTournaments({ year: Number(r.query.year) || new Date().getFullYear() })
+  )
+);
+
 // === Rankings ===
 
 // GET /rankings/:rankId/data

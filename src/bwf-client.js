@@ -153,6 +153,13 @@ export const currentLive = () =>
 export const tournamentsSearch = (params = {}) =>
   apiGet(`/api/vue-tournaments-search?${qs({ activeTab: 4, page: 1, perPage: 20, drawCount: 1, ...params })}`);
 
+// Tous les tournois d'une annee (groupes), avec leur pays. categories = niveaux
+// World Tour (22..26). Sert a resoudre le pays hote de chaque tournoi.
+export const groupedYearTournaments = ({ year, categories = [22, 23, 24, 25, 26], state = 'all' } = {}) => {
+  const cats = categories.map((c) => `category[]=${c}`).join('&');
+  return apiGet(`/api/vue-grouped-year-tournaments?year=${year}&${cats}&state=${state}`);
+};
+
 // --- Rankings ---
 export const rankingData = ({ rankId }) => apiGet(`/api/vue-rankingdata?${qs({ rankId })}`);
 export const rankingWeek = ({ rankId }) => apiGet(`/api/vue-rankingweek?${qs({ rankId })}`);
