@@ -24,7 +24,10 @@ npx playwright install chromium   # (optionnel : on utilise Chrome installe via 
 npm run serve                      # http://localhost:3000
 ```
 
-> Le serveur lance Chrome (channel `chrome`). Il doit rester ouvert en continu.
+> Le serveur lance Chrome (channel `chrome`) en arriere-plan par defaut
+> (`headless`). Pour debugger avec une fenetre visible :
+> `BWF_HEADLESS=false npm run serve`.
+> Le serveur doit rester ouvert en continu.
 > En production : `pm2 start src/server.js` ou service Windows pour redemarrage auto.
 
 ## Routes

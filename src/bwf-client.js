@@ -17,7 +17,7 @@ let _context = null;
 let _warmed = false;
 let _warmupPromise = null;
 
-export async function init({ headless = false } = {}) {
+export async function init({ headless = true } = {}) {
   if (_browser) return;
   _browser = await chromium.launch({
     headless,
@@ -153,9 +153,11 @@ export const currentLive = () =>
 export const tournamentsSearch = (params = {}) =>
   apiGet(`/api/vue-tournaments-search?${qs({ activeTab: 4, page: 1, perPage: 20, drawCount: 1, ...params })}`);
 
-// Tous les tournois d'une annee (groupes), avec leur pays. categories = niveaux
-// World Tour (22..26). Sert a resoudre le pays hote de chaque tournoi.
-export const groupedYearTournaments = ({ year, categories = [22, 23, 24, 25, 26], state = 'all' } = {}) => {
+// Tous les tournois d'une annee (groupes), avec leur pays. categories :
+//   20 = Grade 1 Individuel (Championnats du Monde), 22-26 = World Tour Super
+//   300/500/750/1000 + Finals, 27 = BWF Tour Super 100.
+//   (exclus : 18 junior equipe, 21 Grade 1 equipe). Sert aussi a resoudre le pays.
+export const groupedYearTournaments = ({ year, categories = [20, 22, 23, 24, 25, 26, 27], state = 'all' } = {}) => {
   const cats = categories.map((c) => `category[]=${c}`).join('&');
   return apiGet(`/api/vue-grouped-year-tournaments?year=${year}&${cats}&state=${state}`);
 };

@@ -134,9 +134,9 @@ app.get('/organizations', route(() => 'ref:orgs', TTL.ref, () => bwf.organizatio
 // === Demarrage ===
 
 async function start() {
-  // headless:false par defaut (plus fiable face a Cloudflare en local).
-  // Sur un serveur sans ecran : BWF_HEADLESS=true (teste OK, pas besoin de xvfb).
-  const headless = process.env.BWF_HEADLESS === 'true';
+  // Chrome tourne sans fenetre par defaut. Pour debugger visuellement :
+  // BWF_HEADLESS=false npm run serve
+  const headless = process.env.BWF_HEADLESS !== 'false';
   console.log(`Demarrage du navigateur partage (Chrome, headless: ${headless})...`);
   await bwf.init({ headless });
   console.log('Navigateur pret.');
