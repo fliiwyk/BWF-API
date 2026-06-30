@@ -14,8 +14,18 @@ const WARMUP_URL = 'https://bwfworldtour.bwfbadminton.com/calendar/';
 
 let _browser = null;
 let _context = null;
+let _page = null; // page chaude persistante (sur REFERER), reutilisee pour les fetch
 let _warmed = false;
 let _warmupPromise = null;
+
+// Page reutilisable : on en garde UNE seule, sur REFERER, pour eviter un
+// page.goto (chargement complet ~1-2s) a chaque appel. Recreee si fermee/crashee.
+async function ensurePage() {
+  if (_page && !_page.isClosed()) return _page;
+  _page = await _context.newPage();
+  _warmed = false; // nouvelle page -> a re-warmer (re-naviguer sur REFERER)
+  return _page;
+}
 
 export async function init({ headless = true } = {}) {
   if (_browser) return;
@@ -52,36 +62,33 @@ async function warmup(force = false) {
   if (_warmed && !force) return;
   if (_warmupPromise) return _warmupPromise; // un warmup deja en cours
   _warmupPromise = (async () => {
-    const page = await _context.newPage();
+    const page = await ensurePage();
     try {
       await page.goto(WARMUP_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
       await page.waitForTimeout(5000); // laisse le challenge JS se resoudre
+      // On LAISSE la page sur REFERER : les fetch suivants la reutilisent sans
+      // re-naviguer (le gros gain de temps par appel).
+      await page.goto(REFERER, { waitUntil: 'domcontentloaded', timeout: 60000 });
       _warmed = true;
     } finally {
-      await page.close();
       _warmupPromise = null;
     }
   })();
   return _warmupPromise;
 }
 
-/** Un seul aller-retour fetch depuis le navigateur. */
+/** Un fetch depuis la page chaude persistante (deja sur REFERER, pas de navigation). */
 async function fetchInPage(url) {
-  const page = await _context.newPage();
-  try {
-    await page.goto(REFERER, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    return await page.evaluate(
-      async ({ url, origin, referer }) => {
-        const res = await fetch(url, {
-          headers: { accept: 'application/json, text/plain, */*', origin, referer },
-        });
-        return { status: res.status, body: await res.text() };
-      },
-      { url, origin: ORIGIN, referer: REFERER }
-    );
-  } finally {
-    await page.close();
-  }
+  const page = await ensurePage();
+  return await page.evaluate(
+    async ({ url, origin, referer }) => {
+      const res = await fetch(url, {
+        headers: { accept: 'application/json, text/plain, */*', origin, referer },
+      });
+      return { status: res.status, body: await res.text() };
+    },
+    { url, origin: ORIGIN, referer: REFERER }
+  );
 }
 
 /**
@@ -122,7 +129,7 @@ export async function apiGet(path, { retries = 2 } = {}) {
 
 export async function close() {
   if (_browser) await _browser.close();
-  _browser = _context = null;
+  _browser = _context = _page = null;
   _warmed = false;
   _warmupPromise = null;
 }
