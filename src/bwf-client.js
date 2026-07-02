@@ -153,6 +153,14 @@ export const dayMatchesCourts = ({ tournamentCode, date }) =>
 export const dayMatchesPlayers = ({ tournamentCode, date }) =>
   apiGet(`/api/tournaments/day-matches/players?${qs({ tournamentCode, date })}`);
 
+// Inscrits d'un tournoi par tableau (publies bien avant le tirage, des la
+// cloture des inscriptions). eventName : 1=MS 2=WS 3=MD 4=WD 5=XD.
+// tmtId = id NUMERIQUE du tournoi (champ `id` de vue-grouped-year-tournaments).
+export const tournamentEntries = ({ tmtId, eventName = 1, stageName = 0 }) =>
+  apiGet(
+    `/api/entries/vue-tournament-players-staged?${qs({ searchKey: '', tmtId, tmtType: 0, eventName, stageName, isPara: 0 })}`
+  );
+
 // --- Live / calendrier ---
 export const currentLive = () =>
   apiGet('/api/match-center/vue-current-live?showpara=0');

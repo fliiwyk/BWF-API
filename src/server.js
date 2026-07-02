@@ -80,6 +80,14 @@ app.get(
     (r) => bwf.dayMatchesPlayers({ tournamentCode: r.params.code, date: r.query.date }))
 );
 
+// GET /tournaments/:tmtId/entries?event=1  -> inscrits d'un tableau (1=MS ... 5=XD).
+// tmtId = id NUMERIQUE (champ `id` de /year-tournaments), pas le code GUID.
+app.get(
+  '/tournaments/:tmtId/entries',
+  route((r) => `entries:${r.params.tmtId}:${r.query.event || 1}`, TTL.ranking,
+    (r) => bwf.tournamentEntries({ tmtId: r.params.tmtId, eventName: r.query.event || 1 }))
+);
+
 // === Live / calendrier ===
 
 // GET /live  -> tournois actuellement en live
