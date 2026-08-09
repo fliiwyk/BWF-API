@@ -134,6 +134,25 @@ app.get('/h2h', route((r) => `h2h:${JSON.stringify(r.query)}`, TTL.h2h,
 app.get('/h2h/match', route((r) => `h2hm:${JSON.stringify(r.query)}`, TTL.h2h,
   (r) => bwf.h2hMatch(r.query)));
 
+// === Joueur ===
+
+// GET /player/:id/bio  -> taille, age, main D/G, prize money carriere, residence, reseaux
+app.get('/player/:id/bio', route((r) => `pbio:${r.params.id}`, TTL.ranking,
+  (r) => bwf.playerBio({ playerId: r.params.id })));
+
+// GET /player/:id/summary  -> etat civil, date de naissance, portrait/hero, bio_model etendu
+app.get('/player/:id/summary', route((r) => `psum:${r.params.id}`, TTL.ranking,
+  (r) => bwf.playerSummary({ playerId: r.params.id })));
+
+// GET /player/:id/gallery  -> photos d'action officielles (extranet BWF)
+app.get('/player/:id/gallery', route((r) => `pgal:${r.params.id}`, TTL.ref,
+  (r) => bwf.playerGallery({ playerId: r.params.id })));
+
+// GET /player/:id/matches?offset=&count=  -> derniers matchs joues par le joueur
+app.get('/player/:id/matches', route(
+  (r) => `pmat:${r.params.id}:${r.query.offset || 0}:${r.query.count || 10}`, TTL.h2h,
+  (r) => bwf.playerMatches({ playerId: r.params.id, offset: r.query.offset, count: r.query.count })));
+
 // === Reference ===
 
 app.get('/countries', route(() => 'ref:countries', TTL.ref, () => bwf.countries()));

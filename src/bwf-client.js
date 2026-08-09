@@ -190,6 +190,23 @@ export const h2hStatistics = ({ t1p1, t1p2 = '', t2p1, t2p2 = '' }) =>
 export const h2hMatch = ({ tmt_id, match_code }) =>
   apiGet(`/api/h2h/match?${qs({ tmt_id, match_code })}`);
 
+// --- Joueur (profil public de bwfbadminton.com/player/<id>/<slug>) ---
+export const playerBio = ({ playerId }) =>
+  apiGet(`/api/vue-player-bio?${qs({ activeTab: 1, playerId })}`);
+
+export const playerSummary = ({ playerId }) =>
+  apiGet(`/api/vue-player-summary?${qs({ drawCount: 1, playerId, isPara: false })}`);
+
+export const playerGallery = ({ playerId }) =>
+  apiGet(
+    `/api/vue-player-gallery?${qs({ drawCount: 1, activeTab: 1, extranetUrl: 'https://extranet.bwf.sport', locale: 'en', playerId })}`
+  );
+
+export const playerMatches = ({ playerId, offset = 0, count = 10 }) =>
+  apiGet(
+    `/api/vue-player-match-previous?${qs({ drawCount: count, activeTab: 1, playerId, isPara: false, previousOffset: offset })}`
+  );
+
 // --- Reference ---
 export const countries = () => apiGet('/api/vue-countries');
 export const organizations = () => apiGet('/api/vue-tournament-organizations');
